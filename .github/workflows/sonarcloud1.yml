@@ -1,0 +1,36 @@
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build:
+    name: Build and analyze on SonarCloud
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'  # match BTCPay version
+
+      - name: Install dependencies
+        run: dotnet restore BTCPayServer.sln
+
+      - name: Build
+        run: dotnet build BTCPayServer.sln --no-restore
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          organization: msalmana95
+          projectKey: MSalmanA95_BTC_Pay_server
+          token: ${{ secrets.SONAR_TOKEN }}
